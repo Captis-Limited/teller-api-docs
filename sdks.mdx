@@ -1,0 +1,96 @@
+---
+title: "SDKs"
+description: "Typed TypeScript and Python clients generated from the OpenAPI spec."
+---
+
+Both SDKs are generated from [`openapi/teller-api.yaml`](/api-reference) with the
+[OpenAPI Generator](https://openapi-generator.tech/) and live in the repo under
+`sdks/`. They expose one method per endpoint — `getAccounts` / `getBalances`
+(TypeScript) and `get_accounts` / `get_balances` (Python) — with fully typed
+request and response models.
+
+<Note>
+  This is a proof-of-concept with a **mocked** backend. The Bearer token is
+  advertised but not enforced — any value (or none) works.
+</Note>
+
+## TypeScript
+
+Generated with the `typescript-axios` generator (package name `teller-api-sdk`).
+
+<CodeGroup>
+
+```bash npm
+npm install ./sdks/typescript   # or publish & install by name
+```
+
+```ts usage
+import { Configuration, BalancesApi } from "teller-api-sdk";
+
+const api = new BalancesApi(
+  new Configuration({
+    basePath: "https://your-host.example.com",
+    accessToken: "<token>", // advertised, not enforced in this POC
+  })
+);
+
+// List accounts for a connection (account_id is optional).
+const accounts = await api.getAccounts("conn_123", "acc_1");
+console.log(accounts.data.data?.accounts);
+
+// List balances for a connection.
+const balances = await api.getBalances("conn_123");
+console.log(balances.data.data?.balances);
+```
+
+</CodeGroup>
+
+## Python
+
+Generated with the `python` generator (package name `teller_api_sdk`).
+Requires Python 3.8+.
+
+<CodeGroup>
+
+```bash pip
+pip install ./sdks/python   # or publish & install by name
+```
+
+```python usage
+from teller_api_sdk import ApiClient, Configuration
+from teller_api_sdk.api.balances_api import BalancesApi
+
+config = Configuration(
+    host="https://your-host.example.com",
+    access_token="<token>",  # advertised, not enforced in this POC
+)
+
+with ApiClient(config) as client:
+    api = BalancesApi(client)
+
+    # List accounts for a connection (account_id is optional).
+    accounts = api.get_accounts(connection_id="conn_123", account_id="acc_1")
+    print(accounts.data.accounts)
+
+    # List balances for a connection.
+    balances = api.get_balances(connection_id="conn_123")
+    print(balances.data.balances)
+```
+
+</CodeGroup>
+
+## Regenerating
+
+The SDKs are regenerated from the committed spec whenever the API changes:
+
+```bash
+python scripts/dump_openapi.py            # 1. refresh the spec from code
+openapi-generator-cli generate -i openapi/teller-api.yaml \
+  -g typescript-axios -o sdks/typescript \
+  --additional-properties=npmName=teller-api-sdk,supportsES6=true
+openapi-generator-cli generate -i openapi/teller-api.yaml \
+  -g python -o sdks/python \
+  --additional-properties=packageName=teller_api_sdk,projectName=teller-api-sdk
+```
+
+CI runs a no-drift gate that fails if the committed spec or SDKs are stale.
