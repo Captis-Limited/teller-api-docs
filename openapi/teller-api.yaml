@@ -61,6 +61,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+      x-codeSamples:
+      - lang: TypeScript
+        label: SDK
+        source: "import { Configuration, BalancesApi } from \"teller-api-sdk\";\n\n\
+          const api = new BalancesApi(\n  new Configuration({\n    basePath: \"https://your-host.example.com\"\
+          ,\n    accessToken: \"<token>\", // advertised, not enforced in this POC\n\
+          \  })\n);\n\n// List accounts for a connection (account_id is optional).\n\
+          const { data } = await api.getAccounts(\"conn_123\", \"acc_1\");\nconsole.log(data.data?.accounts);\n"
+      - lang: Python
+        label: SDK
+        source: "from teller_api_sdk import ApiClient, Configuration\nfrom teller_api_sdk.api.balances_api\
+          \ import BalancesApi\n\nconfig = Configuration(\n    host=\"https://your-host.example.com\"\
+          ,\n    access_token=\"<token>\",  # advertised, not enforced in this POC\n\
+          )\n\nwith ApiClient(config) as client:\n    api = BalancesApi(client)\n\
+          \    # List accounts for a connection (account_id is optional).\n    response\
+          \ = api.get_accounts(connection_id=\"conn_123\", account_id=\"acc_1\")\n\
+          \    print(response.data.accounts)\n"
   /balances/{connection_id}:
     get:
       tags:
@@ -107,6 +124,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+      x-codeSamples:
+      - lang: TypeScript
+        label: SDK
+        source: "import { Configuration, BalancesApi } from \"teller-api-sdk\";\n\n\
+          const api = new BalancesApi(\n  new Configuration({\n    basePath: \"https://your-host.example.com\"\
+          ,\n    accessToken: \"<token>\", // advertised, not enforced in this POC\n\
+          \  })\n);\n\n// List balances for a connection (account_id is optional).\n\
+          const { data } = await api.getBalances(\"conn_123\", \"acc_1\");\nconsole.log(data.data?.balances);\n"
+      - lang: Python
+        label: SDK
+        source: "from teller_api_sdk import ApiClient, Configuration\nfrom teller_api_sdk.api.balances_api\
+          \ import BalancesApi\n\nconfig = Configuration(\n    host=\"https://your-host.example.com\"\
+          ,\n    access_token=\"<token>\",  # advertised, not enforced in this POC\n\
+          )\n\nwith ApiClient(config) as client:\n    api = BalancesApi(client)\n\
+          \    # List balances for a connection (account_id is optional).\n    response\
+          \ = api.get_balances(connection_id=\"conn_123\", account_id=\"acc_1\")\n\
+          \    print(response.data.balances)\n"
 components:
   schemas:
     AccountsData:

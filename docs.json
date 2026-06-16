@@ -12,7 +12,9 @@
     "tabs": [
       {
         "tab": "Guides",
-        "pages": ["index"]
+        "pages": [
+          "index"
+        ]
       },
       {
         "tab": "API Reference",
