@@ -1,0 +1,442 @@
+openapi: 3.1.0
+info:
+  title: Teller API
+  description: "**Teller API** \u2014 a tooling proof-of-concept that ports the captis-link\n\
+    `balances` endpoints with a fully **mocked** data layer.\n\nIt exists to prove\
+    \ the end-to-end pipeline:\nFastAPI \u2192 OpenAPI spec \u2192 generated SDKs\
+    \ (TypeScript + Python) \u2192 Mintlify docs,\ndeployed on Azure Functions.\n\n\
+    Endpoints return mocked data wrapped in a standard response envelope and\nrespond\
+    \ with **HTTP 201** on success (preserved from the original API)."
+  contact:
+    name: Captis
+    url: https://captis.co.nz/
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+  version: 1.0.0
+paths:
+  /accounts/{connection_id}:
+    get:
+      tags:
+      - balances
+      summary: List accounts for a connection
+      description: Returns the bank accounts available for the given connection. Optionally
+        filter to a single account with `account_id`.
+      operationId: getAccounts
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: connection_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The connection identifier.
+          examples:
+          - conn_123
+          title: Connection Id
+        description: The connection identifier.
+      - name: account_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter to a specific account.
+          examples:
+          - acc_1
+          title: Account Id
+        description: Filter to a specific account.
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse_AccountsResponse_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /balances/{connection_id}:
+    get:
+      tags:
+      - balances
+      summary: List balances for a connection
+      description: Returns the balances for accounts under the given connection. Optionally
+        filter to a single account with `account_id`.
+      operationId: getBalances
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: connection_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The connection identifier.
+          examples:
+          - conn_123
+          title: Connection Id
+        description: The connection identifier.
+      - name: account_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter to a specific account.
+          examples:
+          - acc_1
+          title: Account Id
+        description: Filter to a specific account.
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse_BalancesResponse_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AccountsData:
+      properties:
+        account_id:
+          type: string
+          title: Account Id
+          examples:
+          - acc_1
+        account_number:
+          type: string
+          title: Account Number
+          examples:
+          - 01-0123-0123456-00
+        currency:
+          type: string
+          title: Currency
+          examples:
+          - NZD
+        description:
+          type: string
+          title: Description
+          examples:
+          - Everyday Account
+        account_type:
+          type: string
+          title: Account Type
+          examples:
+          - Personal
+        account_name:
+          type: string
+          title: Account Name
+          examples:
+          - Jane Doe
+        nickname:
+          type: string
+          title: Nickname
+          examples:
+          - Spending
+        bank:
+          $ref: '#/components/schemas/BankData'
+      type: object
+      required:
+      - account_id
+      - account_number
+      - currency
+      - description
+      - account_type
+      - account_name
+      - nickname
+      - bank
+      title: AccountsData
+      description: A single bank account returned by the accounts endpoint.
+    AccountsResponse:
+      properties:
+        accounts:
+          items:
+            $ref: '#/components/schemas/AccountsData'
+          type: array
+          title: Accounts
+        connection_id:
+          type: string
+          title: Connection Id
+          examples:
+          - conn_123
+      type: object
+      required:
+      - accounts
+      - connection_id
+      title: AccountsResponse
+      description: Wrapper response model matching service return format.
+    AmountData:
+      properties:
+        amount:
+          type: string
+          title: Amount
+          examples:
+          - '1250.75'
+        currency:
+          type: string
+          title: Currency
+          examples:
+          - NZD
+      type: object
+      required:
+      - amount
+      - currency
+      title: AmountData
+      description: A monetary amount with its currency.
+    BalancesData:
+      properties:
+        account_id:
+          type: string
+          title: Account Id
+          examples:
+          - acc_1
+        account_number:
+          type: string
+          title: Account Number
+          examples:
+          - 01-0123-0123456-00
+        nickname:
+          type: string
+          title: Nickname
+          examples:
+          - Spending
+        balance:
+          $ref: '#/components/schemas/AmountData'
+        type_indicator:
+          type: string
+          title: Type Indicator
+          examples:
+          - Credit
+        bank:
+          $ref: '#/components/schemas/BankData'
+      type: object
+      required:
+      - account_id
+      - account_number
+      - nickname
+      - balance
+      - type_indicator
+      - bank
+      title: BalancesData
+      description: A single account balance returned by the balances endpoint.
+    BalancesResponse:
+      properties:
+        balances:
+          items:
+            $ref: '#/components/schemas/BalancesData'
+          type: array
+          title: Balances
+        connection_id:
+          type: string
+          title: Connection Id
+          examples:
+          - conn_123
+      type: object
+      required:
+      - balances
+      - connection_id
+      title: BalancesResponse
+      description: Wrapper response model matching service return format.
+    BankData:
+      properties:
+        bank_name:
+          type: string
+          title: Bank Name
+          examples:
+          - ANZ Bank New Zealand
+        bank_identifier:
+          type: string
+          title: Bank Identifier
+          examples:
+          - ANZBNZ22
+      type: object
+      required:
+      - bank_name
+      - bank_identifier
+      title: BankData
+      description: Identifies the bank servicing an account.
+    ErrorDetail:
+      properties:
+        code:
+          type: string
+          title: Code
+          examples:
+          - INVALID_TOKEN
+        message:
+          type: string
+          title: Message
+          examples:
+          - Invalid Token
+        field:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field
+          examples:
+          - Token
+        details:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Details
+      type: object
+      required:
+      - code
+      - message
+      title: ErrorDetail
+      description: Represents a single error that occurred during request processing.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ResponseLinks:
+      properties:
+        self:
+          type: string
+          title: Self
+          examples:
+          - /balances/conn_123
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        redirect_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Redirect To
+        connection:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Connection
+      type: object
+      required:
+      - self
+      title: ResponseLinks
+      description: HATEOAS-style links to help clients navigate related resources.
+    ResponseMeta:
+      properties:
+        request_id:
+          type: string
+          title: Request Id
+          examples:
+          - b3f1c2a4-5d6e-7f80-9a1b-2c3d4e5f6a7b
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        api_version:
+          type: string
+          title: Api Version
+          default: v1
+        links:
+          anyOf:
+          - $ref: '#/components/schemas/ResponseLinks'
+          - type: 'null'
+      type: object
+      required:
+      - request_id
+      - timestamp
+      title: ResponseMeta
+      description: Metadata about the request and response for tracking and debugging.
+    StandardResponse_AccountsResponse_:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          examples:
+          - true
+        data:
+          anyOf:
+          - $ref: '#/components/schemas/AccountsResponse'
+          - type: 'null'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        errors:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ErrorDetail'
+            type: array
+          - type: 'null'
+          title: Errors
+      type: object
+      required:
+      - success
+      - meta
+      title: StandardResponse[AccountsResponse]
+    StandardResponse_BalancesResponse_:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          examples:
+          - true
+        data:
+          anyOf:
+          - $ref: '#/components/schemas/BalancesResponse'
+          - type: 'null'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        errors:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ErrorDetail'
+            type: array
+          - type: 'null'
+          title: Errors
+      type: object
+      required:
+      - success
+      - meta
+      title: StandardResponse[BalancesResponse]
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      description: Bearer token. Advertised for realism but not enforced in this POC.
+      scheme: bearer

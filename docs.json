@@ -1,0 +1,23 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Teller API",
+  "theme": "mint",
+  "colors": {
+    "primary": "#0E7490",
+    "light": "#22D3EE",
+    "dark": "#0E7490"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "pages": ["index"]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": "openapi/teller-api.yaml"
+      }
+    ]
+  }
+}

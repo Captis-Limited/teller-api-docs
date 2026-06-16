@@ -1,0 +1,52 @@
+---
+title: "Teller API"
+description: "Accounts and balances — a FastAPI → OpenAPI → SDK → Docs pilot."
+---
+
+## Overview
+
+The **Teller API** is a proof-of-concept that demonstrates the full Captis API
+tooling cycle on a single endpoint group ported from `captis-link`:
+
+```
+FastAPI (mocked data)
+  → OpenAPI spec (generated from code)
+    → SDKs (TypeScript + Python, via OpenAPI Generator)
+    → Docs (this site, via Mintlify)
+```
+
+The data layer is **mocked**, so every response is deterministic sample data —
+there is no database, Key Vault, or upstream bank involved.
+
+## Endpoints
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET`  | `/accounts/{connection_id}` | List accounts for a connection. |
+| `GET`  | `/balances/{connection_id}` | List balances for a connection. |
+
+Both accept an optional `?account_id=` query parameter to filter to a single
+account, and both return **HTTP 201** on success with a standard response
+envelope (`success`, `data`, `meta`, `errors`).
+
+Head to the **API Reference** tab to explore the schemas and try the endpoints
+in the interactive playground.
+
+## Authentication
+
+A Bearer security scheme is advertised on every endpoint for realism. In this
+POC it is **not enforced** — any request (with or without a token) succeeds.
+
+```bash
+curl https://<host>/balances/conn_123 \
+  -H "Authorization: Bearer <token>"
+```
+
+## SDKs
+
+Generated SDKs live in the repo under `sdks/`:
+
+- **TypeScript** (`sdks/typescript`) — `client.getAccounts(...)`, `client.getBalances(...)`
+- **Python** (`sdks/python`) — `BalancesApi().get_accounts(...)`, `.get_balances(...)`
+
+Both are generated directly from the committed `openapi/teller-api.yaml`.
